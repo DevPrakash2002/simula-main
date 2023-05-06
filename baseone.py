@@ -7,9 +7,24 @@ import threading
 
 pygame.init()
 
+total_vehicle_count = 0
+def currentTime():
+    global timeString
+
+    hours = 17
+    minutes = 59
+    seconds = 0
+
+    while True:
+        seconds = seconds + 1
+
+        timeString = f"{seconds}"
+        time.sleep(1)
+
 def scale_image(img, factor):
     size = round(img.get_width() * factor), round(img.get_height() * factor)
     return pygame.transform.scale(img, size)
+
 
 road = pygame.image.load("road.png")
 truck = pygame.image.load("truck.png")
@@ -42,10 +57,23 @@ def swap_images():
             # stra = pygame.image.load("on.png")
             stra2 = pygame.image.load("newstr.png")
         time.sleep(0.1)
+def save_DAta():
+    with open("data.txt", 'a') as file:
+        file.write(f"{timeString} {total_vehicle_count}\n")
+        time.sleep(1)
+
+
+lock = threading.Lock()
 
 t = threading.Thread(target=swap_images)
 t.daemon = True
 t.start()
+
+t2 = threading.Thread(target=currentTime)
+t2.daemon = True
+t2.start()
+
+
 
 run = True
 clock = pygame.time.Clock()
@@ -73,12 +101,12 @@ while run:
     screen.blit(grass, (150, 400))
     screen.blit(grass, (0, 400))
     
-    if random.randint(1, 200) == 1:
+    if random.randint(1, 4000) == 1:
         car_positions.append([-100, random.randint(200, 380)])
         
-    if random.randint(1, 500) == 1:
+    if random.randint(1, 4000) == 1:
         truck_positions.append([-100, random.randint(200, 380)])
-    if random.randint(1, 300) == 1:
+    if random.randint(1, 4000) == 1:
         bike_positions.append([-100, random.randint(200, 380)])
        
     for i in range(len(car_positions)):
@@ -147,6 +175,12 @@ while run:
         camera_text = font.render("Camera Off",True,(245,19,2))
     clock.tick(160)    
     car_count_text = font.render("Real Vehicle Count: " + str(total_vehicle_count), True, (0,0,0))
+
+    t3 = threading.Thread(target=save_DAta)
+    t3.daemon = True
+    t3.start()
+
+
     screen.blit(car_count_text, (10, 10))
     screen.blit(camera_text, (850, 10))
     
